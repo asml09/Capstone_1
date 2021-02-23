@@ -21,7 +21,10 @@ df.drop(['Tests_AIAN', 'Tests_Asian', 'Tests_Black', 'Tests_Ethnicity_Hispanic',
 df['Cases_Hispanic'] = df['Cases_Ethnicity_Hispanic'] + df['Cases_LatinX']
 df['Deaths_Hispanic'] = df['Deaths_Ethnicity_Hispanic'] + df['Deaths_LatinX']
 df['Hospitalizations_Hispanic'] = df['Hospitalizations_Ethnicity_Hispanic'] + df['Hospitalizations_LatinX']
-
+cols = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total',
+    'Deaths_Asian', 'Deaths_AIAN', 'Deaths_Black', 'Deaths_White', 'Deaths_Hispanic', 'Deaths_Total', 
+    'Hospitalizations_Asian', 'Hospitalizations_AIAN', 'Hospitalizations_Black', 'Hospitalizations_White', 
+    'Hospitalizations_Hispanic', 'Hospitalizations_Total']
 # fill Na with mean of column, change date to DateTime
 nan_values = df.isna()
 nan_columns = nan_values.any()
@@ -48,7 +51,7 @@ df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d', errors='coerce')
 #pd.to_datetime('13000101', format='%Y%m%d', errors='coerce')
 #print(df['Date'].head())
 
-def plot_by_date(columns, labels, title):
+def plot_by_date(columns, labels, title, df):
     fig, ax = plt.subplots()
     for tup in zip(columns, labels):
         ax.plot(df['Date'], df[tup[0]], label = tup[1])
@@ -64,9 +67,9 @@ Races_hospitalization = ['Hospitalizations_Asian', 'Hospitalizations_AIAN', 'Hos
     'Hospitalizations_Hispanic', 'Hospitalizations_Total']
 Labels = ["Asian", "Native American", "Black", "White", "Hispanic", "Total"]
 
-#plot_by_date(Races_cases, Labels, "Corona cases for all the races")
-#plot_by_date(Races_deaths, Labels, "Corona deaths for all the races")
-#plot_by_date(Races_hospitalization, Labels, "Corona hospitalizations for all the races")
+#plot_by_date(Races_cases, Labels, "Corona cases for all the races", df)
+#plot_by_date(Races_deaths, Labels, "Corona deaths for all the races", df)
+#plot_by_date(Races_hospitalization, Labels, "Corona hospitalizations for all the races", df)
 
 #print(df.columns)
 
@@ -74,21 +77,40 @@ Labels = ["Asian", "Native American", "Black", "White", "Hispanic", "Total"]
 # This is adjusted from the fact that Washington is 9.6% Asian, 1.9% Native American, 4.4% Black, 67.5% White, 13% Hispanic
     # with a population of 7,614,893
 # df_prop will only have the first row of df, which is the total number of cases on 02/21/2021 (NOT new cases) as this is the most recent data
-num_eachrace = np.array([.096, .019, .044, .675, .13, 1])
+num_eachrace = np.array([.096, .019, .044, .675, .13, 1, .096, .019, .044, .675, .13, 1, .096, .019, .044, .675, .13, 1])
 num_eachrace *= 7614893
 num_eachrace *= (1 / 10000)
-print(num_eachrace)
-num_eachrace = pd.DataFrame([num_eachrace], columns = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total'])
-print(num_eachrace)
+
+num_eachrace = pd.DataFrame([num_eachrace], columns = cols)
+
 # row 3 is cases per 10,000
-df_prop = df[['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']]
-df_prop = df_prop.loc[0:1, :]
+df_prop = df[cols]
+# df_prop = df_prop.loc[0:1, :]
 df_prop = df_prop.append(num_eachrace, ignore_index=True)
-df_prop = df_prop.rename(index={0: 'a', 1: 'b', 2: 'c'})
-df_prop.loc['d'] = df_prop.loc['a'] / df_prop.loc['c']
-df_prop.reset_index(inplace = True)
-df_prop.drop("index", axis = 1, inplace=True)
-print(df_prop)
+for i in range(91):
+    df_prop.loc[i] = df_prop.loc[i] / df_prop.loc[91]
+df_prop['Date'] = df['Date']
+df_prop.drop([91], axis = 0, inplace=True)
+#print(df_prop)
+#plot_by_date(Races_cases, Labels, "Corona cases per 10,000 for all the races", df_prop)
+#plot_by_date(Races_deaths, Labels, "Corona deaths per 10,000 for all the races", df_prop)
+# plot_by_date(Races_hospitalization, Labels, "Corona hospitalizations per 10,000 for all the races", df_prop)
 
 
-#df2 is 
+#df_prop_sector is the first row of df, to be used to merge with the sector data
+df_prop_sector = df_prop.loc[0:1, :]
+df_prop_sector = df_prop_sector[['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic']]
+#df_prop_sector = 
+df_sector = pd.read_csv("population_percent2.csv", delimiter = ',,', engine = 'python')
+# print(df_sector.head())
+# print(df_prop_sector)
+
+df_sector = df_sector.rename(columns={'Race / Ethnicity': 'Sector', 'Hispanic': 'Cases_Hispanic', 'Non-Hispanic White':'Cases_White', 
+    'Non-Hispanic Asian':'Cases_Asian', 'Non-Hispanic Black':'Cases_Black', ' American Indian or Alaska Native': 'Cases_AIAN'})
+df_sector.drop(0, axis = 0, inplace = True)
+df_sector.drop("Unnamed: 6", axis = 1, inplace = True)
+# df_sector.reset_index(inplace=True)
+# df_sector.drop("index", axis = 1, inplace = True)
+print(df_sector.head())
+print(df_prop_sector.head())
+
