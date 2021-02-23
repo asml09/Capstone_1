@@ -10,12 +10,17 @@
 #         print(line.strip())
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 df = pd.read_csv("washington-race.csv", delimiter = ',')
 
 # drop empty columns
+# LatinX - ancetry from Latin American countries regardless of language, Hispanic - ancestry from Spanish-speaking countries
+    # Combine to Hispanic - includes both these groups in this df
 df.drop(['Tests_AIAN', 'Tests_Asian', 'Tests_Black', 'Tests_Ethnicity_Hispanic', 'Tests_Ethnicity_NonHispanic', 'Tests_Ethnicity_Unknown',
     'Tests_LatinX', 'Tests_Multiracial', 'Tests_NHPI', 'Tests_Other', 'Tests_White', 'Tests_Total', 'State'], axis = 1, inplace = True, )
-
+df['Cases_Hispanic'] = df['Cases_Ethnicity_Hispanic'] + df['Cases_LatinX']
+df['Deaths_Hispanic'] = df['Deaths_Ethnicity_Hispanic'] + df['Deaths_LatinX']
+df['Hospitalizations_Hispanic'] = df['Hospitalizations_Ethnicity_Hispanic'] + df['Hospitalizations_LatinX']
 
 # fill Na with mean of column, change date to DateTime
 nan_values = df.isna()
@@ -27,7 +32,6 @@ df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d', errors='coerce')
 #df['Hospitalizations_White'].fillna(value=df['Hospitalizations_White'].mean(), inplace=True)
 #print(df['Hospitalizations_White'])
 
-print(df.columns)
 
 #line plot of cases per day over time 
 # fig, ax = plt.subplots()
@@ -54,11 +58,37 @@ def plot_by_date(columns, labels, title):
     ax.tick_params(axis='x', which='major', labelsize=5)
     plt.show()  
 
-Races_cases = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Ethnicity_Hispanic', 'Cases_Total']
-Races_deaths = ['Deaths_Asian', 'Deaths_AIAN', 'Deaths_Black', 'Deaths_White', 'Deaths_Ethnicity_Hispanic', 'Deaths_Total']
+Races_cases = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']
+Races_deaths = ['Deaths_Asian', 'Deaths_AIAN', 'Deaths_Black', 'Deaths_White', 'Deaths_Hispanic', 'Deaths_Total']
 Races_hospitalization = ['Hospitalizations_Asian', 'Hospitalizations_AIAN', 'Hospitalizations_Black', 'Hospitalizations_White', 
-    'Hospitalizations_Ethnicity_Hispanic', 'Hospitalizations_Total']
+    'Hospitalizations_Hispanic', 'Hospitalizations_Total']
 Labels = ["Asian", "Native American", "Black", "White", "Hispanic", "Total"]
 
 #plot_by_date(Races_cases, Labels, "Corona cases for all the races")
-plot_by_date(Races_deaths, Labels, "Corona deaths for all the races")
+#plot_by_date(Races_deaths, Labels, "Corona deaths for all the races")
+#plot_by_date(Races_hospitalization, Labels, "Corona hospitalizations for all the races")
+
+#print(df.columns)
+
+# df_prop has only the cases. This dataframe sums all the cases from all the days, and they are converted to cases per 10,000 people 
+# This is adjusted from the fact that Washington is 9.6% Asian, 1.9% Native American, 4.4% Black, 67.5% White, 13% Hispanic
+    # with a population of 7,614,893
+# df_prop will only have the first row of df, which is the total number of cases on 02/21/2021 (NOT new cases) as this is the most recent data
+num_eachrace = np.array([.096, .019, .044, .675, .13, 1])
+num_eachrace *= 7614893
+num_eachrace *= (1 / 10000)
+print(num_eachrace)
+num_eachrace = pd.DataFrame([num_eachrace], columns = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total'])
+print(num_eachrace)
+# row 3 is cases per 10,000
+df_prop = df[['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']]
+df_prop = df_prop.loc[0:1, :]
+df_prop = df_prop.append(num_eachrace, ignore_index=True)
+df_prop = df_prop.rename(index={0: 'a', 1: 'b', 2: 'c'})
+df_prop.loc['d'] = df_prop.loc['a'] / df_prop.loc['c']
+df_prop.reset_index(inplace = True)
+df_prop.drop("index", axis = 1, inplace=True)
+print(df_prop)
+
+
+#df2 is 
