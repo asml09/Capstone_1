@@ -99,9 +99,17 @@ df_prop.drop([91], axis = 0, inplace=True)
 
 #df_prop_sector is the first row of df, to be used to merge with the sector data
 df_prop_sector = df_prop.loc[0:1, :]
-df_prop_sector = df_prop_sector[['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic']]
-#df_prop_sector = 
+df_prop_sector.drop(['Deaths_Asian', 'Deaths_AIAN',
+       'Deaths_Black', 'Deaths_White', 'Deaths_Hispanic', 'Deaths_Total',
+       'Hospitalizations_Asian', 'Hospitalizations_AIAN',
+       'Hospitalizations_Black', 'Hospitalizations_White',
+       'Hospitalizations_Hispanic', 'Hospitalizations_Total', 'Date'], axis = 1, inplace=True)
+#df_prop_sector['Sector'] = ['Filler', 'Filler']
+
+
 df_sector = pd.read_csv("population_percent2.csv", delimiter = ',,', engine = 'python')
+
+
 # print(df_sector.head())
 # print(df_prop_sector)
 
@@ -109,8 +117,19 @@ df_sector = df_sector.rename(columns={'Race / Ethnicity': 'Sector', 'Hispanic': 
     'Non-Hispanic Asian':'Cases_Asian', 'Non-Hispanic Black':'Cases_Black', ' American Indian or Alaska Native': 'Cases_AIAN'})
 df_sector.drop(0, axis = 0, inplace = True)
 df_sector.drop("Unnamed: 6", axis = 1, inplace = True)
-# df_sector.reset_index(inplace=True)
-# df_sector.drop("index", axis = 1, inplace = True)
-print(df_sector.head())
-print(df_prop_sector.head())
+df_sector.reset_index(inplace=True)
+df_sector.drop("index", axis = 1, inplace = True)
+
+
+for cases in Races_cases[0:5]:
+    df_sector[cases] = df_sector[cases].str.rstrip('%').astype('float') / 100.0
+
+
+# print(df_sector.head())
+# Now we have all the percents as decimals from rows 0:7, and from 8:9 the number of cummulative cases on 02/21/2021
+# Next step: multiply rows -0:7 by row 8, to get cases per 10,000 in each industry sector
+sector_final = pd.concat([df_sector, df_prop_sector], ignore_index=True)
+
+print(sector_final[['Cases_Asian', 'Cases_AIAN']])
+Races_cases = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']
 
