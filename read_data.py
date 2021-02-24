@@ -8,6 +8,7 @@
 #     # print(lines)
 #     for line in f:
 #         print(line.strip())
+from scipy import stats
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -103,7 +104,7 @@ df_prop_sector.drop(['Deaths_Asian', 'Deaths_AIAN',
        'Deaths_Black', 'Deaths_White', 'Deaths_Hispanic', 'Deaths_Total',
        'Hospitalizations_Asian', 'Hospitalizations_AIAN',
        'Hospitalizations_Black', 'Hospitalizations_White',
-       'Hospitalizations_Hispanic', 'Hospitalizations_Total', 'Date'], axis = 1, inplace=True)
+       'Hospitalizations_Hispanic', 'Hospitalizations_Total', 'Date', 'Cases_Total'], axis = 1, inplace=True)
 #df_prop_sector['Sector'] = ['Filler', 'Filler']
 
 
@@ -130,6 +131,45 @@ for cases in Races_cases[0:5]:
 # Next step: multiply rows -0:7 by row 8, to get cases per 10,000 in each industry sector
 sector_final = pd.concat([df_sector, df_prop_sector], ignore_index=True)
 
-print(sector_final[['Cases_Asian', 'Cases_AIAN']])
+#print(sector_final[['Cases_Asian', 'Cases_AIAN']])
 Races_cases = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']
 
+# for i in range(8):
+#     sector_final.loc[i, 1:5] = sector_final.loc[i, 1:5] * sector_final.loc[8, 1:5]
+# .mul 
+#print(sector_final)
+
+#result = b.drop(["Group"], axis=1).div(a.drop(["Group"], axis=1))
+
+# first = sector_final.loc[0:7]
+# print(first)
+# second = sector_final.loc[8]
+# second = pd.concat([second] * 8, axis = 1)
+# print(second)
+#result = first.drop(['Sector', 'Cases_Total'], axis=1).mul(sector_final[8].drop(['Sector', 'Cases_Total'], axis=0))
+
+temp = sector_final.drop(['Sector'], axis = 1)
+for i in range(8):
+    temp.loc[i] = temp.loc[i] * temp.loc[8]
+#print(temp)
+#sector_10k has the cases per industry per 10,000
+sector_10k = sector_final[['Sector']].join(temp)
+print(sector_10k[['Sector', 'Cases_Hispanic']])
+sector_10k.drop([8, 9], axis = 0, inplace=True)
+
+#Hypothesis testing
+# THe health care industry is seen generally as the most dangerous, and thus health care workers were one of the first to 
+# receive the vaccine. However, retail and food services also appear to be dangerous trades. Within each race, is there a 
+# significant difference between the safest job(public administration) and retail, and food services?
+# Starting with Hispanics in retail vs Hispanics in public administration 
+
+#Retail - row 2, Public admin - row 7
+print(sector_10k['Cases_Hispanic'])
+
+#Null hypothesis- there is no difference between Hispanics in retail and Hispanics in public admin
+total_Hisp = sector_10k["Cases_Hispanic"].sum(axis = 0)
+shared_freq = sector_10k.loc[2, "Cases_Hispanic"] + sector_10k.loc[7, "Cases_Hispanic"] / total_Hisp
+shared_var = 2 * (shared_freq) * (1 - shared_freq)) / total_Hisp
+
+print(shared_freq)
+print(total_Hisp)
