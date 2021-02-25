@@ -108,7 +108,7 @@ df_prop_sector.drop(['Deaths_Asian', 'Deaths_AIAN',
 #df_prop_sector['Sector'] = ['Filler', 'Filler']
 
 
-df_sector = pd.read_csv("population_percent2.csv", delimiter = ',,', engine = 'python')
+df_sector = pd.read_csv("population-percent.csv", delimiter = ',,', engine = 'python')
 
 
 # print(df_sector.head())
@@ -117,11 +117,12 @@ df_sector = pd.read_csv("population_percent2.csv", delimiter = ',,', engine = 'p
 df_sector = df_sector.rename(columns={'Race / Ethnicity': 'Sector', 'Hispanic': 'Cases_Hispanic', 'Non-Hispanic White':'Cases_White', 
     'Non-Hispanic Asian':'Cases_Asian', 'Non-Hispanic Black':'Cases_Black', ' American Indian or Alaska Native': 'Cases_AIAN'})
 df_sector.drop(0, axis = 0, inplace = True)
+
 df_sector.drop("Unnamed: 6", axis = 1, inplace = True)
 df_sector.reset_index(inplace=True)
 df_sector.drop("index", axis = 1, inplace = True)
 
-
+print(df_sector.columns)
 for cases in Races_cases[0:5]:
     df_sector[cases] = df_sector[cases].str.rstrip('%').astype('float') / 100.0
 
@@ -154,7 +155,7 @@ for i in range(8):
 #print(temp)
 #sector_10k has the cases per industry per 10,000
 sector_10k = sector_final[['Sector']].join(temp)
-print(sector_10k[['Sector', 'Cases_Hispanic']])
+#print(sector_10k[['Sector', 'Cases_Hispanic']])
 sector_10k.drop([8, 9], axis = 0, inplace=True)
 
 #Hypothesis testing
@@ -164,16 +165,18 @@ sector_10k.drop([8, 9], axis = 0, inplace=True)
 # Starting with Hispanics in retail vs Hispanics in public administration 
 
 #Retail - row 2, Public admin - row 7
-print(sector_10k['Cases_Hispanic'])
+# print(sector_10k['Cases_Hispanic'])
+sector_10k['Cases_Total'] = sector_10k.sum(axis = 1)
+print(sector_10k['Cases_Total'])
 
-#Null hypothesis- there is no difference between Hispanics in retail and Hispanics in public admin
-total_Hisp = sector_10k["Cases_Hispanic"].sum(axis = 0)
-shared_freq = (sector_10k.loc[2, "Cases_Hispanic"] + sector_10k.loc[7, "Cases_Hispanic"]) / total_Hisp
-print(shared_freq)
+#Null hypothesis- there is no difference between covid cases in retail and covid cases in public admin
+total_Hisp = sector_10k["Cases_Total"].sum(axis = 0)
+shared_freq = (sector_10k.loc[2, "Cases_Total"] + sector_10k.loc[7, "Cases_Total"]) / total_Hisp
+# print(shared_freq)
 shared_var = (2 * (shared_freq) * (1 - shared_freq))/total_Hisp
-print(shared_var)
+# print(shared_var)
 diff_prop = stats.norm(0, np.sqrt(shared_var))
-diff_in_sample_prop = (sector_10k.loc[2, "Cases_Hispanic"] - sector_10k.loc[7, "Cases_Hispanic"])  / total_Hisp
+diff_in_sample_prop = (sector_10k.loc[2, "Cases_Total"] - sector_10k.loc[7, "Cases_Total"])  / total_Hisp
 p_val = 1 - diff_prop.cdf(diff_in_sample_prop)
 # print(shared_freq)
 # print(total_Hisp)
