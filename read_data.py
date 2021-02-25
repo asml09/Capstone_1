@@ -168,8 +168,13 @@ print(sector_10k['Cases_Hispanic'])
 
 #Null hypothesis- there is no difference between Hispanics in retail and Hispanics in public admin
 total_Hisp = sector_10k["Cases_Hispanic"].sum(axis = 0)
-shared_freq = sector_10k.loc[2, "Cases_Hispanic"] + sector_10k.loc[7, "Cases_Hispanic"] / total_Hisp
-shared_var = 2 * (shared_freq) * (1 - shared_freq)) / total_Hisp
-
+shared_freq = (sector_10k.loc[2, "Cases_Hispanic"] + sector_10k.loc[7, "Cases_Hispanic"]) / total_Hisp
 print(shared_freq)
-print(total_Hisp)
+shared_var = (2 * (shared_freq) * (1 - shared_freq))/total_Hisp
+print(shared_var)
+diff_prop = stats.norm(0, np.sqrt(shared_var))
+diff_in_sample_prop = (sector_10k.loc[2, "Cases_Hispanic"] - sector_10k.loc[7, "Cases_Hispanic"])  / total_Hisp
+p_val = 1 - diff_prop.cdf(diff_in_sample_prop)
+# print(shared_freq)
+# print(total_Hisp)
+print(p_val)
