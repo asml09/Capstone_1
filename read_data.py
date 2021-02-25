@@ -37,21 +37,6 @@ df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d', errors='coerce')
 #print(df['Hospitalizations_White'])
 
 
-#line plot of cases per day over time 
-# fig, ax = plt.subplots()
-# for tup in zip(Races_cases, Labels):
-#     ax.plot(df['Date'], df[tup[0]], label = tup[1])
-#ax.plot(df['Date'], df['Cases_Asian'], label = "Asian")
-#ax.plot(df['Date'], df['Cases_Black'])
-# ax.legend()
-# ax.set_title("Corona cases for all the races")
-# plt.xticks(rotation = 90)
-# ax.tick_params(axis='x', which='major', labelsize=5)
-# plt.show()
-
-#pd.to_datetime('13000101', format='%Y%m%d', errors='coerce')
-#print(df['Date'].head())
-
 def plot_by_date(columns, labels, title, df):
     fig, ax = plt.subplots()
     for tup in zip(columns, labels):
@@ -135,21 +120,9 @@ sector_final = pd.concat([df_sector, df_prop_sector], ignore_index=True)
 #print(sector_final[['Cases_Asian', 'Cases_AIAN']])
 Races_cases = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']
 
-# for i in range(8):
-#     sector_final.loc[i, 1:5] = sector_final.loc[i, 1:5] * sector_final.loc[8, 1:5]
-# .mul 
-#print(sector_final)
-
-#result = b.drop(["Group"], axis=1).div(a.drop(["Group"], axis=1))
-
-# first = sector_final.loc[0:7]
-# print(first)
-# second = sector_final.loc[8]
-# second = pd.concat([second] * 8, axis = 1)
-# print(second)
-#result = first.drop(['Sector', 'Cases_Total'], axis=1).mul(sector_final[8].drop(['Sector', 'Cases_Total'], axis=0))
-
-temp = sector_final.drop(['Sector'], axis = 1)
+sector_final = sector_final.set_index('Sector')
+print(sector_final)
+# temp = sector_final.drop(['Sector'], axis = 1)
 for i in range(8):
     temp.loc[i] = temp.loc[i] * temp.loc[8]
 #print(temp)
@@ -167,17 +140,31 @@ sector_10k.drop([8, 9], axis = 0, inplace=True)
 #Retail - row 2, Public admin - row 7
 # print(sector_10k['Cases_Hispanic'])
 sector_10k['Cases_Total'] = sector_10k.sum(axis = 1)
-print(sector_10k['Cases_Total'])
+print(sector_10k['Sector'])
 
 #Null hypothesis- there is no difference between covid cases in retail and covid cases in public admin
-total_Hisp = sector_10k["Cases_Total"].sum(axis = 0)
-shared_freq = (sector_10k.loc[2, "Cases_Total"] + sector_10k.loc[7, "Cases_Total"]) / total_Hisp
-# print(shared_freq)
-shared_var = (2 * (shared_freq) * (1 - shared_freq))/total_Hisp
-# print(shared_var)
-diff_prop = stats.norm(0, np.sqrt(shared_var))
-diff_in_sample_prop = (sector_10k.loc[2, "Cases_Total"] - sector_10k.loc[7, "Cases_Total"])  / total_Hisp
-p_val = 1 - diff_prop.cdf(diff_in_sample_prop)
-# print(shared_freq)
-# print(total_Hisp)
-print(p_val)
+# total_Hisp = sector_10k["Cases_Total"].sum(axis = 0)
+# shared_freq = (sector_10k.loc[2, "Cases_Total"] + sector_10k.loc[7, "Cases_Total"]) / total_Hisp
+# # print(shared_freq)
+# shared_var = (2 * (shared_freq) * (1 - shared_freq))/total_Hisp
+# # print(shared_var)
+# diff_prop = stats.norm(0, np.sqrt(shared_var))
+# diff_in_sample_prop = (sector_10k.loc[2, "Cases_Total"] - sector_10k.loc[7, "Cases_Total"])  / total_Hisp
+# p_val = 1 - diff_prop.cdf(diff_in_sample_prop)
+# # print(shared_freq)
+# # print(total_Hisp)
+# print(p_val)
+
+# dictionary mapping name of industry to which row it is 
+#map_ind = {'Health Care and Social Assistance' : 0, 'Manufacturing' : 1, 'Retail Trade' : 2, ''}
+
+def fine_p(int_industry1, int_industry2):
+    all_industries_cases = sector_10k["Cases_Total"].sum(axis = 0)
+    shared_freq = (sector_10k.loc[int_industry1, "Cases_Total"] + sector_10k.loc[int_industry2, "Cases_Total"]) / all_industries_cases
+    shared_var = (2 * (shared_freq) * (1 - shared_freq))/ all_industries_cases
+    diff_prop = stats.norm(0, np.sqrt(shared_var))
+    diff_in_sample_prop = (sector_10k.loc[int_industry1, "Cases_Total"] - sector_10k.loc[int_industry2, "Cases_Total"]) / all_industries_cases
+    p_val = 1 - diff_prop.cdf(diff_in_sample_prop)  
+    return p_val
+
+
