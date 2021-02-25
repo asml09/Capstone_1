@@ -12,6 +12,8 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import seaborn as sns; sns.set_theme()
+
 df = pd.read_csv("washington-race.csv", delimiter = ',')
 
 # drop empty columns
@@ -35,6 +37,7 @@ for column in columns_with_nan:
 df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d', errors='coerce')
 #df['Hospitalizations_White'].fillna(value=df['Hospitalizations_White'].mean(), inplace=True)
 #print(df['Hospitalizations_White'])
+
 
 
 def plot_by_date(columns, labels, title, df):
@@ -107,7 +110,7 @@ df_sector.drop("Unnamed: 6", axis = 1, inplace = True)
 df_sector.reset_index(inplace=True)
 df_sector.drop("index", axis = 1, inplace = True)
 
-print(df_sector.columns)
+
 for cases in Races_cases[0:5]:
     df_sector[cases] = df_sector[cases].str.rstrip('%').astype('float') / 100.0
 
@@ -120,9 +123,7 @@ sector_final = pd.concat([df_sector, df_prop_sector], ignore_index=True)
 #print(sector_final[['Cases_Asian', 'Cases_AIAN']])
 Races_cases = ['Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White', 'Cases_Hispanic', 'Cases_Total']
 
-sector_final = sector_final.set_index('Sector')
-print(sector_final)
-# temp = sector_final.drop(['Sector'], axis = 1)
+temp = sector_final.drop(['Sector'], axis = 1)
 for i in range(8):
     temp.loc[i] = temp.loc[i] * temp.loc[8]
 #print(temp)
@@ -130,17 +131,25 @@ for i in range(8):
 sector_10k = sector_final[['Sector']].join(temp)
 #print(sector_10k[['Sector', 'Cases_Hispanic']])
 sector_10k.drop([8, 9], axis = 0, inplace=True)
+sector_10k = sector_10k.set_index('Sector')
+sector_10k = sector_10k.rename(index = {'"Agriculture, Forestry, Fishing and Hunting"': 'Agriculture',
+     'Health Care and Social Assistance' : 'Health Care', 'Accommodation and Food Services': 'Food Service', 
+     'Retail Trade': 'Retail', 'Public Administration': 'Public Admin', 'Transportation and Warehousing': 'Transportation'})
+#sector_10k.drop(['Sector'], axis = 0, inplace=True)
+# print(sector_10k.index)
 
 #Hypothesis testing
 # THe health care industry is seen generally as the most dangerous, and thus health care workers were one of the first to 
-# receive the vaccine. However, retail and food services also appear to be dangerous trades. Within each race, is there a 
+# receive the vaccine. However, retail and food services also appear to be dangerous trades. Is there a 
 # significant difference between the safest job(public administration) and retail, and food services?
 # Starting with Hispanics in retail vs Hispanics in public administration 
 
 #Retail - row 2, Public admin - row 7
 # print(sector_10k['Cases_Hispanic'])
 sector_10k['Cases_Total'] = sector_10k.sum(axis = 1)
-print(sector_10k['Sector'])
+print(sector_10k['Cases_Total'])
+print(sector_10k.columns)
+
 
 #Null hypothesis- there is no difference between covid cases in retail and covid cases in public admin
 # total_Hisp = sector_10k["Cases_Total"].sum(axis = 0)
@@ -155,16 +164,27 @@ print(sector_10k['Sector'])
 # # print(total_Hisp)
 # print(p_val)
 
-# dictionary mapping name of industry to which row it is 
-#map_ind = {'Health Care and Social Assistance' : 0, 'Manufacturing' : 1, 'Retail Trade' : 2, ''}
 
-def fine_p(int_industry1, int_industry2):
+
+def find_p(industry1, industry2):
     all_industries_cases = sector_10k["Cases_Total"].sum(axis = 0)
-    shared_freq = (sector_10k.loc[int_industry1, "Cases_Total"] + sector_10k.loc[int_industry2, "Cases_Total"]) / all_industries_cases
+    shared_freq = (sector_10k.loc[industry1, "Cases_Total"] + sector_10k.loc[industry2, "Cases_Total"]) / all_industries_cases
     shared_var = (2 * (shared_freq) * (1 - shared_freq))/ all_industries_cases
     diff_prop = stats.norm(0, np.sqrt(shared_var))
-    diff_in_sample_prop = (sector_10k.loc[int_industry1, "Cases_Total"] - sector_10k.loc[int_industry2, "Cases_Total"]) / all_industries_cases
+    diff_in_sample_prop = (sector_10k.loc[industry1, "Cases_Total"] - sector_10k.loc[industry2, "Cases_Total"]) / all_industries_cases
     p_val = 1 - diff_prop.cdf(diff_in_sample_prop)  
     return p_val
+#print(find_p('Manufacturing', 'Food Service'))
 
+array_pval = np.empty((8, 8))
+for industry, i in zip(sector_10k.index, range(8)):
+    for other_industry, j in zip(sector_10k.index, range(8)):
+        array_pval[i, j] = find_p(industry, other_industry)
+
+#print(array_pval[array_pval < .05])
+fig, ax = plt.subplots()
+ax = sns.heatmap(np.array(array_pval), xticklabels = sector_10k.index, yticklabels = sector_10k.index)
+plt.show()
+
+        
 
