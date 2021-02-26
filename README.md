@@ -10,7 +10,7 @@ Two dataframes are used for visualization and analysis.
 
 The first dataframe is df, which is from the covid tracking project. 
 
-<img src = "https://github.com/asml09/Capstone_1/blob/main/images/table1.png" >
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/table1.png" width="700" height="200>
 
 The columns of this data set are ['Date', 'Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White',
        'Cases_Other', 'Cases_NHPI', 'Cases_Multiracial', 'Cases_LatinX',
@@ -21,7 +21,7 @@ The columns of this data set are ['Date', 'Cases_Asian', 'Cases_AIAN', 'Cases_Bl
 
 The second dataframe is sector_10k, which is the combined dataframe from the two sources. 
 
-{Table 2} 
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/table2.png" > 
 
 The columns of this data set are ['Cases_Hispanic', 'Cases_White', 'Cases_Asian', 'Cases_Black',
        'Cases_AIAN', 'Cases_Total']
@@ -31,25 +31,36 @@ The indexes are ['Health Care', 'Manufacturing', 'Retail', 'Agriculture', 'Food 
 The following three graphs show the trend of cases, deaths, and hospitalizations from April 2020 to the present. 
 There is a rise in all three categories in this time period, with a big spike around November of 2020. 
 
-{fig 1, 2, 3}
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig1.png" width="600" height="450" > 
+
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig2.png" width="600" height="450" >
+
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig3.png" width="600" height="450" >
 
 The above graphs show a raw count of cases. However, this is not an accurate representation of which races were most affected, as there are more White people than any other race. Note that even though there are much more White people than Hispanic people, there are still more Hispanic cases. The following graphs are adjusted per 10,000. For number of cases, hospitalizations, and deaths, Hispanics are harder hit than any other race by a huge margin. Black people fare slightly worse than Whites, Asians, and Native Americans, but no where near Hispanics. Why is this the case? It may be that more Hispanics are in industries where you are more likely to contract coronavirus. 
 
-fig 4, 5, 6
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig4.png" width="600" height="450" > 
+
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig5.png" width="600" height="450" > 
+
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig6.png" width="600" height="450" > 
+
 
 # Analysis 
 
 Is there a significant difference in cases between each industry? The 8 industries are health care, manufacturing, retail, agriculture, food service, construction, transportation and public admininistration. With p < .05, 64 null hypothesis significance tests were carried out. 
 As an example, is there a difference in cases between the retail and manufacturing industry? In the dataframe, there are about 202 cases per 10,000 in the manufacturing industry, and about 188 cases per 10,000 in the retail industry. 
 
-fig 7 
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig7.png" width="600" height="450" > 
+
 
 Null hypothesis - There is no difference in corona cases in the retail industry vs the manufacturing industry
 Alternative hypothesis - There are more cases in the manufacturing industry than the retail industry
 This figure is the distribution of (Cases in retail) - (Cases in manufacturing). Probability of seeing this observed difference or higher given the null hypothesis is 0.285. With a p-value of 0.285, we cannot reject the null hypothesis. 
 The following heat map gives the p values between all the industries. 
 
-fig 8 
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/fig8.png" width="800" height="800" > 
+
 
 In this figure, the diagonal is meaningless, because it is each industry versus itself. The results are repeated across the axis (health care, manufacturing is the same as manufacturing, health care) so looking at one half of the diagonal will give all the information you need. There is a significant difference in cases between the health industry and every other industry. There is a difference between manufacturing and agriculture, construction, transportation, and public admin. Looking at the whole chart, there is a difference between a lot of the industries. 
 
