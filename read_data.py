@@ -26,6 +26,7 @@ columns_with_nan = df.columns[nan_columns].tolist()
 for column in columns_with_nan:
     df[column].fillna(value=df[column].mean(), inplace=True)
 df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d', errors='coerce')
+
 #df['Hospitalizations_White'].fillna(value=df['Hospitalizations_White'].mean(), inplace=True)
 #print(df['Hospitalizations_White'])
 
@@ -172,18 +173,18 @@ shared_freq = (sector_10k.loc['Retail', "Cases_Total"] + sector_10k.loc['Manufac
 shared_var = (sector_10k.loc['Retail', "Cases_Total"] + sector_10k.loc['Manufacturing', "Cases_Total"]) * (shared_freq) * (1 - shared_freq)
 diff_prop = stats.norm(0, np.sqrt(shared_var))
 diff_in_sample = abs(sector_10k.loc['Retail', "Cases_Total"] - sector_10k.loc['Manufacturing', "Cases_Total"]) 
-fig, ax = plt.subplots()
-x = np.linspace(-50, 50, num=250)
-palette = sns.color_palette("mako_r", 6)
-ax = sns.lineplot(
-    x= x, y=diff_prop.pdf(x),
-    palette=palette)
-ax.fill_between(x, diff_prop.pdf(x), 
-    where=(x >= diff_in_sample), color="red", alpha=0.5)
-p = find_p('Retail', 'Manufacturing')
-ax.set_title("Retail vs Manufacturing p-val region, p = 0.285")
-ax.set_xlabel("Cases Manufacturing - Cases Retail", fontsize = 9)
-plt.show()
+# fig, ax = plt.subplots()
+# x = np.linspace(-50, 50, num=250)
+# palette = sns.color_palette("mako_r", 6)
+# ax = sns.lineplot(
+#     x= x, y=diff_prop.pdf(x),
+#     palette=palette)
+# ax.fill_between(x, diff_prop.pdf(x), 
+#     where=(x >= diff_in_sample), color="red", alpha=0.5)
+# p = find_p('Retail', 'Manufacturing')
+# ax.set_title("Retail vs Manufacturing p-val region, p = 0.285")
+# ax.set_xlabel("Cases Manufacturing - Cases Retail", fontsize = 9)
+# plt.show()
 
 
 #print(find_p('Manufacturing', 'Food Service'))
@@ -193,6 +194,7 @@ for industry, i in zip(sector_10k.index, range(8)):
     for other_industry, j in zip(sector_10k.index, range(8)):
         array_pval[i, j] = find_p(industry, other_industry)
 
+print(df.columns)
 # print(array_pval[array_pval < .05])
 # fig, ax = plt.subplots()
 # fig.tight_layout(pad = 5)
