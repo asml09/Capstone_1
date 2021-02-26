@@ -10,6 +10,8 @@ Two dataframes are used for visualization and analysis.
 
 The first dataframe is df, which is from the covid tracking project. 
 
+<img src = "https://github.com/asml09/Capstone_1/blob/main/images/table1.png" > 
+
 The columns of this data set are ['Date', 'Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White',
        'Cases_Other', 'Cases_NHPI', 'Cases_Multiracial', 'Cases_LatinX',
        'Cases_Ethnicity_NonHispanic', 'Cases_Ethnicity_Hispanic',
