@@ -18,7 +18,9 @@ The columns of this data set are ['Date', 'Cases_Asian', 'Cases_AIAN', 'Cases_Bl
        'Deaths_Black', ... 'Deaths_Total', 'Hospitalizations_AIAN',
        'Hospitalizations_Asian', 'Hospitalizations_Black', ...'Hospitalizations_Hispanic']
 
-The second dataframe is sector_10k, which is the combined dataframe from the two sources. 
+The second dataframe is sector_10k, which is the combined dataframe from the two sources. In covid vaccine rollout, 
+health care workers had priority in getting the vaccine. However, other industries might be in more danger for 
+contracting covid as well, and the analysis will explore whether some industries had more cases than others. 
 
 <img src = "https://github.com/asml09/Capstone_1/blob/main/images/table2.png" > 
 
