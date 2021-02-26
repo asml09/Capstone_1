@@ -1,18 +1,9 @@
-# import tabula
-# df = tabula.read_pdf("https://www.doh.wa.gov/Portals/1/Documents/1600/coronavirus/data-tables/COVID-19MorbidityMortalityRaceEthnicityLanguageWAState.pdf", 
-# pages = 5)
-# print(df)
-
-# with open('table1.1.rtf') as f:
-#     # lines = f.readlines()
-#     # print(lines)
-#     for line in f:
-#         print(line.strip())
 from scipy import stats
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns; sns.set_theme()
+
 
 df = pd.read_csv("washington-race.csv", delimiter = ',')
 
@@ -171,20 +162,51 @@ def find_p(industry1, industry2):
     shared_freq = (sector_10k.loc[industry1, "Cases_Total"] + sector_10k.loc[industry2, "Cases_Total"]) / all_industries_cases
     shared_var = (2 * (shared_freq) * (1 - shared_freq))/ all_industries_cases
     diff_prop = stats.norm(0, np.sqrt(shared_var))
-    diff_in_sample_prop = (sector_10k.loc[industry1, "Cases_Total"] - sector_10k.loc[industry2, "Cases_Total"]) / all_industries_cases
+    diff_in_sample_prop = abs(sector_10k.loc[industry1, "Cases_Total"] - sector_10k.loc[industry2, "Cases_Total"]) / all_industries_cases
     p_val = 1 - diff_prop.cdf(diff_in_sample_prop)  
     return p_val
-#print(find_p('Manufacturing', 'Food Service'))
 
+all_industries_cases = sector_10k["Cases_Total"].sum(axis = 0)
+shared_freq = (sector_10k.loc['Retail', "Cases_Total"] + sector_10k.loc['Manufacturing', "Cases_Total"]) / all_industries_cases
+# shared_var = n_retail * p(1 - p) + n_manufacture * p(1 - p) 
+shared_var = (sector_10k.loc['Retail', "Cases_Total"] + sector_10k.loc['Manufacturing', "Cases_Total"]) * (shared_freq) * (1 - shared_freq)
+diff_prop = stats.norm(0, np.sqrt(shared_var))
+diff_in_sample = abs(sector_10k.loc['Retail', "Cases_Total"] - sector_10k.loc['Manufacturing', "Cases_Total"]) 
+fig, ax = plt.subplots()
+x = np.linspace(-50, 50, num=250)
+palette = sns.color_palette("mako_r", 6)
+ax = sns.lineplot(
+    x= x, y=diff_prop.pdf(x),
+    palette=palette)
+ax.fill_between(x, diff_prop.pdf(x), 
+    where=(x >= diff_in_sample), color="red", alpha=0.5)
+p = find_p('Retail', 'Manufacturing')
+ax.set_title("Retail vs Manufacturing p-val region, p = 0.285")
+ax.set_xlabel("Cases Manufacturing - Cases Retail", fontsize = 9)
+plt.show()
+
+
+#print(find_p('Manufacturing', 'Food Service'))
+print(sector_10k.loc["Retail", "Cases_Total"])
 array_pval = np.empty((8, 8))
 for industry, i in zip(sector_10k.index, range(8)):
     for other_industry, j in zip(sector_10k.index, range(8)):
         array_pval[i, j] = find_p(industry, other_industry)
 
-#print(array_pval[array_pval < .05])
-fig, ax = plt.subplots()
-ax = sns.heatmap(np.array(array_pval), xticklabels = sector_10k.index, yticklabels = sector_10k.index)
-plt.show()
+# print(array_pval[array_pval < .05])
+# fig, ax = plt.subplots()
+# fig.tight_layout(pad = 5)
+# sns.set(font_scale = 0.8)
+# ax = sns.heatmap(np.array(array_pval), xticklabels = sector_10k.index, yticklabels = sector_10k.index)
+# ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize = 8.5, rotation = 90)
+# ax.set_yticklabels(ax.get_xmajorticklabels(), fontsize = 8.5)
+# ax.set_title("p-values across industries", fontsize = 13)
+# plt.show()
 
-        
+#a = pd.DataFrame(array_pval)
+
+
+
+
+
 
