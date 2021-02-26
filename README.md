@@ -13,9 +13,8 @@ The first dataframe is df, which is from the covid tracking project.
 <img src = "https://github.com/asml09/Capstone_1/blob/main/images/table1.png" > 
 
 The columns of this data set are ['Date', 'Cases_Asian', 'Cases_AIAN', 'Cases_Black', 'Cases_White',
-       'Cases_Other', 'Cases_NHPI', 'Cases_Multiracial', 'Cases_LatinX',
-       'Cases_Ethnicity_NonHispanic', 'Cases_Ethnicity_Hispanic',
-       'Cases_Ethnicity_Unknown', 'Cases_Total', 'Deaths_AIAN', 'Deaths_Asian',
+       'Cases_Other', 'Cases_NHPI', 'Cases_Ethnicity_Hispanic',
+       'Cases_Total', 'Deaths_AIAN', 'Deaths_Asian',
        'Deaths_Black', ... 'Deaths_Total', 'Hospitalizations_AIAN',
        'Hospitalizations_Asian', 'Hospitalizations_Black', ...'Hospitalizations_Hispanic']
 
